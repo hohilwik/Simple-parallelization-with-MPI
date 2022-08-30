@@ -11,8 +11,8 @@
 
 int main (int argc, char* argv[])
 {
-	double N=1E4;
-	double accuracy;
+	double N=1E7;
+	double accuracy=0.01;
 	
     int rank, size, error;
 	long long int i;
@@ -26,12 +26,20 @@ int main (int argc, char* argv[])
 	
 	if(rank==0)
 	{
-		scanf("%lf", &accuracy);
-		N = 1.0/accuracy;
-		if( N< 1E4 )
+		FILE *fp;
+		fp = fopen("req.txt", "r");
+		if(fp)
+		{
+			fscanf(fp, "%lf", &accuracy);
+			N= 1.0/accuracy;
+			fclose(fp);
+			
+		}
+		else
 		{
 			N=1E4;
 		}
+		
 	}
     
     
