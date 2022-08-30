@@ -6,7 +6,7 @@
   #define MASTER 0
   #define FROM_MASTER 1
   #define FROM_WORKER 2
-  #define DEFAULT_SIZE 2048
+  #define DEFAULT_SIZE 4096
 #endif
 
 long **init_long_matrix(int rows, int cols);
