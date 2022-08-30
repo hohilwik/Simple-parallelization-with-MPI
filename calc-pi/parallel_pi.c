@@ -31,7 +31,7 @@ int main (int argc, char* argv[])
 		if(fp)
 		{
 			fscanf(fp, "%lf", &accuracy);
-			N= 1.0/accuracy;
+			N= (1.0/accuracy);
 			fclose(fp);
 			
 		}
@@ -39,6 +39,8 @@ int main (int argc, char* argv[])
 		{
 			N=1E4;
 		}
+		
+		//N= N-((int)(N)%size);
 		
 	}
     
@@ -64,7 +66,7 @@ int main (int argc, char* argv[])
     if (rank==0)
     {
         pi=sqrt(sum*6);
-        printf("np=%2d;    Time=%fs;    PI=%lf, N=%lf\n", size, end-begin, pi, N);
+        printf("npoc=%2d\tTime=%fs\tPi=%lf, N=%lf\n", size, end-begin, pi, N);
     }
     
     error=MPI_Finalize();
