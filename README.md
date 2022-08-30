@@ -11,6 +11,7 @@ Calculating pi from the result of the Basel problem:
 
 ### How to run
 
+- ``cd ./calc-pi``
 - ``gcc run.c -o run``
 - ``./run`` 
 
@@ -25,7 +26,14 @@ Distributed Matrix multiplication
 
 ### How to run
 
+- ``cd ./matrix-multiply``
 - ``make``
 - ``gcc run.c -o run``
 - ``./run``
 - change DEFAULT_SIZE in `matrix_multiply.h` to change matrix size
+
+## Q6
+
+Distributed graph coloring
+
+
