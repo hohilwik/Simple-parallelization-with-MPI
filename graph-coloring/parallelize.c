@@ -139,7 +139,7 @@ int plassman_algorithm_p_processors(int argc, char * argv[]) {
 	MPI_Comm_create(MPI_COMM_WORLD, workers_group, &comm_workers);
 
 	if (rank == 0) {
-		read_graph_to_adjacency_matrix(stdin, &matrix, &numnodes);
+		read_graph_to_adjacency_matrix('graph.txt', &matrix, &numnodes);
 
 		colors = (int*)malloc(numnodes*sizeof(int));
 		conflicts = (int*)malloc(numnodes*sizeof(int));
