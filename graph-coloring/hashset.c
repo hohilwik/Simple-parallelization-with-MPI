@@ -641,8 +641,3 @@ CustomTreeNode * node                /** The node to free */
     CUSTOM_FREE( node );
 }
 
-int main()
-{
-	printf("\ncompiles\n");
-	return 0;
-}
