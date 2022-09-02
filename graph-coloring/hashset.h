@@ -2,6 +2,7 @@
 #define _HASHSET_H_
 
 #include <stddef.h>
+#include <stdio.h>
 
 #define CUSTOM_ERROR_BASE                    1000
 #define CUSTOM_ERROR_PARAM_ELEMENT           ( CUSTOM_ERROR_BASE + 13 )

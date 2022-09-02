@@ -43,6 +43,7 @@ Distributed graph coloring
 ### How to run
 
 - ``cd ./graph-coloring``
+- ``python3 gen_graphs.py <size> <probability of nodes being connected in range(0,1)> > graph.txt
 - ``gcc run.c -o run``
 - ``./run``
 - use graph_gen.py to generate graphs of different sizes

@@ -3,6 +3,101 @@
 #include <mpi.h>
 #include <math.h>
 #include <time.h>
+#include "parallelize.h"
+#include "hashset.h"
+
+#define MIN(x,y) (x<y?x:y)
+
+void read_graph_to_adjacency_matrix(FILE * f, int ** pmatrix, int * pnodes) {
+	int edges, i;
+	fscanf(f, " %d", pnodes);
+	fscanf(f, " %d", &edges);
+	*pmatrix = (int *) calloc(*pnodes * *pnodes, sizeof(int));
+	if (*pmatrix == NULL) {
+		error("Out of memory in read_graph_to_adjacency_matrix()\n");
+		MPI_Finalize();
+		exit(-1);
+	}
+	
+	/* read edges one by one */
+	for (i = 0; i < edges; i++) {
+		int node1, node2;
+		int n = fscanf(f, " %d %d", &node1, &node2);
+		if (n != 2 || node1 < 0 || node1 >= *pnodes || node2 < 0 || node2 >= *pnodes) {
+			fprintf(stderr, "Wrong edge %d in the graph definition file\n", i);
+			exit(1);
+		}
+		(*pmatrix)[POS(node1, node2, *pnodes)] = 1;
+		(*pmatrix)[POS(node2, node1, *pnodes)] = 1;
+	}
+}
+
+int get_nodes_per_process(int nodes, int max_processes) {
+	return floor( nodes * 1.0 / max_processes );
+}
+
+int get_pid_of_node(int node, int nodes, int max_processes) {
+	return MIN(floor( node * 1.0 / get_nodes_per_process(nodes, max_processes ) ), max_processes-1) + 1;
+}
+
+
+
+int find_my_color(CustomSet * psetcolors, int nodes) {
+	int color;
+	for (color = 1; customSetContains(psetcolors, (void *) color) && color < nodes; color++);
+	return color;
+}
+
+/*
+ * Generate a random value between a and b inclusive. It suposes the srand function was already called.
+ */
+int rand_between(int low, int high) {
+
+	return rand() % (high - low + 1) + low;
+}
+
+
+int color_node(int node, int pid, int nodes_per_block, int * madjacency, int* colors, CustomSet * psetcolors, int nodes) {
+	int othernode;
+	customSetClear(psetcolors);
+	for (othernode = 0; othernode < nodes; othernode++) {
+		if (othernode != (pid-1)*nodes_per_block + node) {
+			if (madjacency[POS(othernode, node, nodes)] == 1) {
+				if (colors[othernode] != 0)
+				/* the neighbor already has a color */
+					customSetAdd(psetcolors, (void *) colors[othernode]);
+			}
+		}
+	}
+
+	return find_my_color(psetcolors, nodes);
+}
+
+
+int is_local(int node, int i, int * madjacency, int nodes, int p) {
+	int othernode;
+	int pid = get_pid_of_node(node, nodes, p);
+	for (othernode = 0; othernode < nodes; othernode++) {
+		if (othernode != node && madjacency[POS(othernode, i, nodes)] == 1) {
+			if (get_pid_of_node(othernode, nodes, p) != pid)
+				return 0;
+		}
+	}
+	return 1;
+}
+
+
+void print_adjacency_matrix(int pid, int * madjacency, int my_nodes, int nodes) {
+	int i, j;
+	printf("[rank %d] adjacency %d:\n", pid, my_nodes*nodes);
+	for ( i = 0; i < my_nodes; i++ ) {
+		for ( j = 0; j < nodes; j++ )	
+			printf( "%d ", madjacency[i*nodes + j]);
+		printf( "[rank %d]\n",pid);
+	}
+	
+	fflush(stdout);
+}
 
 int plassman_algorithm_p_processors(int argc, char * argv[]) {
 	int * matrix, * colors, * conflicts;
@@ -105,7 +200,7 @@ void plassman_p_processors(int pid, int p, MPI_Comm * comm_workers) {
 
 	MPI_Request req;
 	MPI_Status status;
-	PblSet * psetcolors = (PblSet *) pblSetNewHashSet();
+	CustomSet * psetcolors = (CustomSet *) customSetNewHashSet();
 	int good = 1;	
 
 	MPI_Recv( &nodes, 1, MPI_INT, 0, TAG, MPI_COMM_WORLD, &status );
