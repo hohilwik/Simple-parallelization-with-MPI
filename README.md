@@ -36,4 +36,16 @@ Distributed Matrix multiplication
 
 Distributed graph coloring
 
+- For a small planar graph with 50000 nodes, it uses 5 colors, close to the optimal 3, and the ideal 3+1 for the algorithm
+- For graphs with less than 100,000 nodes, speed up for 4 cores vs 1 core is not seen
+- For graphs with 10 million nodes, a nearly linear speed up is noticed, with time taken going from 64954s for 1 thread to 7824s for 8 threads
+
+### How to run
+
+- ``cd ./graph-coloring``
+- ``gcc run.c -o run``
+- ``./run``
+- use graph_gen.py to generate graphs of different sizes
+
+
 
